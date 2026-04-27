@@ -58,12 +58,12 @@ export default function ProfileSetup({ user, onComplete }: Props) {
 
   if (step === 1) {
     return (
-      <div className="min-h-screen bg-zinc-50 dark:bg-black text-zinc-600 dark:text-zinc-400 flex items-center justify-center p-4 md:p-6 relative overflow-hidden transition-colors" dir={isRTL(i18n.language) ? 'rtl' : 'ltr'}>
+      <div className="min-h-[100dvh] bg-zinc-100 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400 flex items-center justify-center p-4 md:p-6 relative overflow-y-auto transition-colors" dir={isRTL(i18n.language) ? 'rtl' : 'ltr'}>
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-brand-accent/5 blur-[120px] rounded-full" />
         
         {/* Language Switcher Overlay */}
         <div className="absolute top-6 end-6 z-50">
-          <div className="flex items-center gap-2 bg-zinc-50 dark:bg-black px-4 py-2 border border-zinc-100 dark:border-zinc-900 rounded-minimal group shadow-sm">
+          <div className="flex items-center gap-2 bg-white dark:bg-zinc-900 px-4 py-2 border border-zinc-200 dark:border-zinc-800 rounded-minimal group shadow-sm">
             <Globe className="w-3.5 h-3.5 text-zinc-300 dark:text-zinc-700 group-hover:text-brand-accent transition-colors" />
             <select 
               value={i18n.language}
@@ -77,17 +77,17 @@ export default function ProfileSetup({ user, onComplete }: Props) {
           </div>
         </div>
         
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.98, y: 10 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          className="max-w-2xl w-full bg-zinc-50 dark:bg-black border border-zinc-100 dark:border-zinc-900 p-6 md:p-10 rounded-minimal space-y-6 md:space-y-8 relative z-10 shadow-sm"
-        >
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.98, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className="max-w-2xl w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 md:p-10 rounded-minimal space-y-6 md:space-y-8 relative z-10 shadow-xl dark:shadow-zinc-950/50"
+      >
           <div className="text-center space-y-2 md:space-y-3">
             <h2 className="text-2xl md:text-3xl font-serif italic text-zinc-900 dark:text-zinc-50">{t('app.terms_agreements')}</h2>
             <p className="text-zinc-400 dark:text-zinc-500 font-medium text-[10px] md:text-xs uppercase tracking-widest">{t('app.protocol_review')}</p>
           </div>
 
-          <div className="bg-zinc-50/50 dark:bg-black border border-zinc-100 dark:border-zinc-900 rounded-minimal p-4 md:p-8 h-64 md:h-80 overflow-y-auto space-y-4 md:space-y-6 text-xs md:text-sm text-zinc-500 dark:text-zinc-400 font-light leading-relaxed custom-scrollbar text-left shadow-inner">
+          <div className="bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-minimal p-4 md:p-8 h-64 md:h-80 overflow-y-auto space-y-4 md:space-y-6 text-xs md:text-sm text-zinc-500 dark:text-zinc-400 font-light leading-relaxed custom-scrollbar text-left shadow-inner">
             <section className="space-y-2">
               <h3 className="text-zinc-400 dark:text-zinc-700 font-bold uppercase tracking-widest text-[10px]">{t('app.community_integrity_title')}</h3>
               <p>{t('app.community_integrity_content')}</p>
@@ -117,7 +117,7 @@ export default function ProfileSetup({ user, onComplete }: Props) {
           <div className="space-y-4">
             <label className="flex items-start gap-4 cursor-pointer group text-left">
               <div className={`mt-1 w-6 h-6 rounded-minimal border transition-all flex items-center justify-center shrink-0 ${
-                termsAccepted ? 'bg-brand-accent border-brand-accent shadow-lg shadow-brand-accent/20' : 'bg-zinc-100/50 dark:bg-black border-zinc-200/50 dark:border-zinc-900 group-hover:border-zinc-200 dark:group-hover:border-zinc-800'
+                termsAccepted ? 'bg-brand-accent border-brand-accent shadow-lg shadow-brand-accent/20' : 'bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 group-hover:border-zinc-300 dark:group-hover:border-zinc-600'
               }`}>
                 {termsAccepted && <CheckCircle className="w-4 h-4 text-white" />}
               </div>
@@ -147,21 +147,21 @@ export default function ProfileSetup({ user, onComplete }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black text-zinc-600 dark:text-zinc-400 flex items-center justify-center p-4 md:p-6 relative overflow-hidden transition-colors" dir={isRTL(i18n.language) ? 'rtl' : 'ltr'}>
+    <div className="min-h-[100dvh] bg-zinc-100 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400 flex items-center justify-center p-4 md:p-6 relative overflow-y-auto transition-colors" dir={isRTL(i18n.language) ? 'rtl' : 'ltr'}>
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-brand-accent/5 blur-[120px] rounded-full" />
       
       {/* Language Switcher Overlay */}
       <div className="absolute top-6 end-6 z-50">
-        <div className="flex items-center gap-2 bg-zinc-50 dark:bg-black px-4 py-2 border border-zinc-100 dark:border-zinc-900 rounded-minimal group shadow-sm">
+        <div className="flex items-center gap-2 bg-white dark:bg-zinc-900 px-4 py-2 border border-zinc-200 dark:border-zinc-800 rounded-minimal group shadow-sm">
           <Globe className="w-3.5 h-3.5 text-zinc-300 dark:text-zinc-700 group-hover:text-brand-accent transition-colors" />
           <select 
             value={i18n.language}
             onChange={(e) => i18n.changeLanguage(e.target.value)}
             className="bg-transparent border-none outline-none text-[10px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-500 cursor-pointer hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
           >
-            <option value="en" className="bg-white dark:bg-black text-zinc-900 dark:text-zinc-100">🇺🇸 English</option>
-            <option value="ar" className="bg-white dark:bg-black text-zinc-900 dark:text-zinc-100">🇸🇦 العربية</option>
-            <option value="he" className="bg-white dark:bg-black text-zinc-900 dark:text-zinc-100">🇮🇱 עברית</option>
+            <option value="en" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">🇺🇸 English</option>
+            <option value="ar" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">🇸🇦 العربية</option>
+            <option value="he" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">🇮🇱 עברית</option>
           </select>
         </div>
       </div>
@@ -170,11 +170,11 @@ export default function ProfileSetup({ user, onComplete }: Props) {
         initial={{ opacity: 0, scale: 0.98, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className="max-w-xl w-full bg-zinc-50 dark:bg-black border border-zinc-100 dark:border-zinc-900 p-6 md:p-10 rounded-minimal space-y-8 md:space-y-10 relative z-10 shadow-sm"
+        className="max-w-xl w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 md:p-10 rounded-minimal space-y-8 md:space-y-10 relative z-10 shadow-xl dark:shadow-zinc-950/50"
       >
         <div className="text-center space-y-4 md:space-y-6">
-          <div className="w-16 h-16 md:w-20 md:h-20 bg-zinc-50/50 dark:bg-black rounded-minimal flex items-center justify-center mx-auto mb-4 md:mb-6 border border-zinc-100 dark:border-zinc-900 overflow-hidden shadow-inner">
-            <UserIcon className="w-8 h-8 md:w-10 md:h-10 text-zinc-200 dark:text-zinc-900" />
+          <div className="w-16 h-16 md:w-20 md:h-20 bg-zinc-50 dark:bg-zinc-950 rounded-minimal flex items-center justify-center mx-auto mb-4 md:mb-6 border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-inner">
+            <UserIcon className="w-8 h-8 md:w-10 md:h-10 text-zinc-200 dark:text-zinc-800" />
           </div>
           <div className="space-y-1 md:space-y-2">
             <h2 className="text-2xl md:text-3xl font-serif italic text-zinc-900 dark:text-zinc-50 text-center">{t('app.identity_setup')}</h2>
@@ -189,7 +189,7 @@ export default function ProfileSetup({ user, onComplete }: Props) {
               type="text" 
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              className="w-full bg-zinc-50/50 dark:bg-black border border-zinc-100 dark:border-zinc-900 rounded-minimal px-4 md:px-6 py-3 md:py-4 focus:border-brand-accent/50 outline-none transition-all text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-200 dark:placeholder:text-zinc-800 text-sm shadow-sm"
+              className="w-full bg-zinc-100 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-minimal px-4 md:px-6 py-3 md:py-4 focus:border-brand-accent/50 outline-none transition-all text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-200 dark:placeholder:text-zinc-800 text-sm shadow-sm"
               placeholder={t('app.enter_your_public_name')}
               required
             />
@@ -210,7 +210,7 @@ export default function ProfileSetup({ user, onComplete }: Props) {
                   className={`relative py-4 rounded-minimal border transition-all text-[10px] font-bold uppercase tracking-widest overflow-hidden ${
                     opinion === opt.id 
                       ? 'bg-brand-accent text-white border-brand-accent shadow-lg shadow-brand-accent/20' 
-                      : 'bg-zinc-50/50 dark:bg-black border-zinc-100 dark:border-zinc-900 text-zinc-400 dark:text-zinc-600 hover:border-zinc-200 dark:hover:border-zinc-800 hover:text-zinc-500 dark:hover:text-zinc-400'
+                      : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-400 dark:text-zinc-600 hover:border-zinc-300 dark:hover:border-zinc-700 hover:text-zinc-500 dark:hover:text-zinc-400'
                   }`}
                 >
                   {opt.label}

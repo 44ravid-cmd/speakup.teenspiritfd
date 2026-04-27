@@ -1124,16 +1124,16 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
   };
 
   return (
-    <div className="flex-1 overflow-x-hidden overflow-y-auto lg:overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-6 p-4 md:p-8 bg-zinc-50 dark:bg-black">
-      <div className="lg:col-span-8 flex flex-col gap-6 h-full min-h-0">
-        <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 relative min-h-[400px] lg:min-h-0">
+    <div className="flex-1 overflow-hidden flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-6 p-2 md:p-8 bg-zinc-100 dark:bg-zinc-950">
+      <div className="flex-[5] lg:col-span-8 flex flex-col gap-3 lg:gap-6 min-h-0">
+        <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2 lg:gap-4 relative min-h-0">
           {/* Topic Insight Overlay */}
           {status === 'connected' && (
             <div className="absolute top-2 start-1/2 -translate-x-1/2 z-40">
               <button 
                 onClick={handleSuggestTopic}
                 disabled={suggestingTopic}
-                className="btn-minimal flex items-center gap-2 bg-zinc-50/80 dark:bg-black/80 backdrop-blur-sm border-zinc-200 dark:border-zinc-900"
+                className="btn-minimal flex items-center gap-2 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-zinc-200 dark:border-zinc-800"
               >
                 <RefreshCw className={`w-3 h-3 ${suggestingTopic ? 'animate-spin' : ''}`} />
                 {t('app.suggest_topic')}
@@ -1149,7 +1149,7 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
                 exit={{ opacity: 0, y: -5 }}
                 className="absolute top-12 left-1/2 -translate-x-1/2 z-[60] w-full max-w-sm px-4"
               >
-                <div className="bg-zinc-50 dark:bg-black p-6 border border-zinc-200/50 dark:border-zinc-900 shadow-sm rounded-minimal relative overflow-hidden">
+                <div className="bg-white dark:bg-zinc-900 p-6 border border-zinc-200 dark:border-zinc-800 shadow-xl shadow-zinc-200/30 dark:shadow-zinc-950/80 rounded-minimal relative overflow-hidden">
                   <div className="absolute top-0 end-0 w-16 h-16 bg-brand-accent/5 blur-xl rounded-full translate-x-1/2 -translate-y-1/2" />
                   <p className="text-[9px] font-bold text-brand-accent/60 uppercase tracking-[0.3em] mb-3">{t('app.contextual_prompt')}</p>
                   <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-50 leading-relaxed italic">"{suggestedTopic}"</p>
@@ -1159,9 +1159,9 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
           </AnimatePresence>
 
           {/* User Side */}
-          <div className={`video-container group bg-zinc-50 dark:bg-black shadow-sm relative transition-all duration-700 border-2 ${qualityStats.color} ${qualityStats.shadow}`}>
+          <div className={`video-container group bg-white dark:bg-zinc-900 shadow-sm relative transition-all duration-700 border-2 ${qualityStats.color} ${qualityStats.shadow}`}>
             {cameraError && (
-              <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-zinc-50 dark:bg-black p-6 text-center space-y-4">
+              <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white dark:bg-zinc-900 p-6 text-center space-y-4">
                 <div className="w-12 h-12 bg-rose-50 dark:bg-rose-500/10 border border-rose-100 dark:border-rose-500/20 flex items-center justify-center rounded-minimal shadow-sm">
                   <AlertCircle className="w-6 h-6 text-rose-500" />
                 </div>
@@ -1184,13 +1184,13 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
             <video ref={localVideoRef} autoPlay muted playsInline className="w-full h-full object-cover mirror opacity-90" />
             
             {isCameraOff && (
-              <div className="absolute inset-0 bg-zinc-50/50 dark:bg-black/50 flex flex-col items-center justify-center">
+              <div className="absolute inset-0 bg-white/50 dark:bg-zinc-900/50 flex flex-col items-center justify-center">
                 <CameraOff className="w-10 h-10 text-zinc-200 dark:text-zinc-800" />
                 <p className="text-meta mt-4 text-zinc-300 dark:text-zinc-700">{t('app.visual_feed_suspended')}</p>
               </div>
             )}
 
-            <div className="absolute bottom-6 start-6 flex items-center gap-3 bg-zinc-50/80 dark:bg-black/80 backdrop-blur-md p-3 border border-zinc-200/50 dark:border-zinc-900 rounded-minimal shadow-sm">
+            <div className="absolute bottom-2 md:bottom-6 start-2 md:start-6 flex items-center gap-2 md:gap-3 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md p-2 md:p-3 border border-zinc-200 dark:border-zinc-800 rounded-minimal shadow-lg dark:shadow-zinc-950/50">
               <div className="w-1.5 h-1.5 bg-brand-accent rounded-full animate-ping shadow-[0_0_8px_rgba(37,99,235,0.4)]" />
               <div className="flex flex-col">
                 <span className="text-[11px] font-bold text-zinc-900 uppercase tracking-wider">{user.displayName?.split(' ')[0]}</span>
@@ -1206,19 +1206,19 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
           </div>
 
           {/* Remote Feed Unit */}
-          <div className={`video-container group bg-zinc-50 dark:bg-black shadow-sm transition-all duration-700 border-2 ${qualityStats.color} ${qualityStats.shadow}`}>
+          <div className={`video-container group bg-white dark:bg-zinc-900 shadow-sm transition-all duration-700 border-2 ${qualityStats.color} ${qualityStats.shadow}`}>
             {status === 'connected' ? (
               <>
                 <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-full object-cover opacity-90" />
                 
                 <div className="absolute top-6 left-6 z-30 flex items-center gap-3">
-                  <div className="px-3 py-1.5 bg-zinc-50/60 dark:bg-black/60 backdrop-blur-md border border-zinc-200/50 dark:border-zinc-900 shadow-sm rounded-minimal flex items-center gap-2">
+                  <div className="px-3 py-1.5 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 shadow-md dark:shadow-zinc-950/50 rounded-minimal flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-brand-accent animate-pulse shadow-[0_0_8px_rgba(37,99,235,0.4)]" />
                     <span className="text-[8px] font-black text-brand-accent uppercase tracking-[0.2em]">{t('app.encrypted_node')}</span>
                   </div>
 
                   {latency > 0 && (
-                    <div className="px-3 py-1.5 bg-zinc-50/60 dark:bg-black/60 backdrop-blur-md border border-zinc-200/50 dark:border-zinc-900 shadow-sm rounded-minimal flex items-center gap-3">
+                    <div className="px-3 py-1.5 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 shadow-md dark:shadow-zinc-950/50 rounded-minimal flex items-center gap-3">
                       <div className="flex items-center gap-1.5">
                         <Signal className={`w-3 h-3 ${latency < 100 ? 'text-emerald-500' : latency < 300 ? 'text-brand-accent' : 'text-rose-500'}`} />
                         <span className={`text-[10px] font-mono font-bold ${latency > 250 ? 'text-rose-500' : 'text-emerald-500'}`}>
@@ -1230,7 +1230,7 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
                 </div>
                 
                 {connectionState !== 'connected' && connectionState !== 'failed' && connectionState !== 'disconnected' && (
-                  <div className="absolute inset-0 z-20 bg-zinc-50/80 dark:bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center space-y-6">
+                  <div className="absolute inset-0 z-20 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm flex flex-col items-center justify-center space-y-6">
                     <div className="relative">
                       <div className="w-12 h-12 border-2 border-brand-accent/10 rounded-full animate-ping absolute inset-0" />
                       <div className="w-12 h-12 border-2 border-t-brand-accent border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin" />
@@ -1260,7 +1260,7 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 1.1 }}
-                      className="absolute inset-0 z-30 bg-zinc-50/60 dark:bg-black/60 backdrop-blur-md flex items-center justify-center p-12 pointer-events-none"
+                      className="absolute inset-0 z-30 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md flex items-center justify-center p-12 pointer-events-none"
                     >
                       <div className="flex flex-col items-center gap-6 text-center max-w-sm">
                         <motion.div 
@@ -1283,7 +1283,7 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
                 </AnimatePresence>
 
                 {(connectionState === 'failed' || connectionState === 'disconnected') && (
-                  <div className="absolute inset-0 z-40 bg-zinc-50/90 dark:bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
+                  <div className="absolute inset-0 z-40 bg-zinc-100/90 dark:bg-zinc-950/90 backdrop-blur-sm flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
                     <div className="w-14 h-14 bg-rose-50 dark:bg-rose-500/10 border border-rose-100 dark:border-rose-500/20 flex items-center justify-center rounded-minimal mb-6 shadow-sm">
                       <AlertCircle className="w-7 h-7 text-rose-500" />
                     </div>
@@ -1293,7 +1293,7 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
                         {webrtcError || (connectionState === 'failed' ? t('app.webrtc_error_ice') : t('app.webrtc_error_disconnected'))}
                       </p>
                     </div>
-                    <div className="bg-zinc-50 dark:bg-black p-6 border border-zinc-200/50 dark:border-zinc-900 rounded-minimal w-full max-w-sm space-y-4 shadow-sm">
+                    <div className="bg-white dark:bg-zinc-900/80 p-6 border border-zinc-200 dark:border-zinc-800 rounded-minimal w-full max-w-sm space-y-4 shadow-sm">
                       <p className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em]">{t('app.webrtc_troubleshoot')}</p>
                       <ul className="text-[10px] text-zinc-400 space-y-3 text-start">
                         <li className="flex gap-3">
@@ -1312,14 +1312,14 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
                     </div>
                     <button 
                       onClick={handleSkip}
-                      className="mt-8 px-6 py-3 bg-zinc-50 dark:bg-black border border-zinc-100 dark:border-zinc-900 text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-brand-accent hover:border-brand-accent transition-all rounded-minimal shadow-sm"
+                      className="mt-8 px-6 py-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-brand-accent hover:border-brand-accent transition-all rounded-minimal shadow-sm"
                     >
                       {t('app.disconnect')}
                     </button>
                   </div>
                 )}
 
-                <div className="absolute bottom-6 start-6 flex items-center gap-4 bg-zinc-50/80 dark:bg-black/80 backdrop-blur-md p-4 border border-zinc-200/50 dark:border-zinc-900 rounded-minimal shadow-2xl group-hover:border-brand-accent/30 transition-all">
+                <div className="absolute bottom-2 md:bottom-6 start-2 md:start-6 flex items-center gap-2 md:gap-4 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md p-2 md:p-4 border border-zinc-200 dark:border-zinc-800 rounded-minimal shadow-2xl group-hover:border-brand-accent/30 transition-all">
                   <div className={`w-2 h-2 rounded-full ${connectionState === 'connected' ? 'bg-brand-accent shadow-[0_0_8px_rgba(37,99,235,0.4)]' : 'bg-zinc-100 dark:bg-zinc-800 animate-pulse'}`} />
                   <div className="flex flex-col">
                     <span className="text-xs font-black text-zinc-900 dark:text-zinc-50 uppercase tracking-wider">{remoteProfile?.displayName}</span>
@@ -1342,12 +1342,12 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
                       remoteVideoRef.current?.play();
                       setAudioBlocked(false);
                     }}
-                    className="absolute inset-0 z-50 bg-zinc-50/40 dark:bg-black/40 backdrop-blur-sm flex flex-col items-center justify-center gap-4 group"
+                    className="absolute inset-0 z-50 bg-white/40 dark:bg-zinc-900/40 backdrop-blur-sm flex flex-col items-center justify-center gap-4 group"
                   >
                     <div className="w-16 h-16 bg-brand-accent text-white rounded-full flex items-center justify-center animate-bounce shadow-xl group-hover:scale-110 transition-transform">
                       <Volume2 className="w-8 h-8" />
                     </div>
-                    <span className="text-xs font-black text-zinc-900 dark:text-zinc-50 uppercase tracking-widest bg-zinc-50 dark:bg-black px-4 py-2 rounded-full border border-zinc-200/50 dark:border-zinc-900 shadow-sm">
+                    <span className="text-xs font-black text-zinc-900 dark:text-zinc-50 uppercase tracking-widest bg-white dark:bg-zinc-900 px-4 py-2 rounded-full border border-zinc-200 dark:border-zinc-800 shadow-sm">
                       Click to Enable Audio
                     </span>
                   </button>
@@ -1356,7 +1356,7 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
                 {profile.isAdmin && remoteProfile && (
                   <button 
                     onClick={() => setShowModerateModal(true)}
-                    className="absolute top-6 right-20 p-3 bg-zinc-50 dark:bg-black border border-zinc-100 dark:border-zinc-900 hover:bg-brand-accent hover:text-white transition-all text-zinc-400 dark:text-zinc-500 rounded-minimal shadow-sm"
+                    className="absolute top-6 right-20 p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:bg-brand-accent hover:text-white transition-all text-zinc-400 dark:text-zinc-500 rounded-minimal shadow-sm"
                     title={t('app.moderate')}
                   >
                     <Gavel className="w-4 h-4" />
@@ -1365,15 +1365,15 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
 
                 <button 
                   onClick={() => setShowReportModal(true)}
-                  className="absolute top-6 right-6 p-3 bg-zinc-50 dark:bg-black border border-zinc-100 dark:border-zinc-900 hover:bg-rose-500 hover:text-white transition-all text-zinc-400 dark:text-zinc-500 rounded-minimal shadow-sm"
+                  className="absolute top-6 right-6 p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:bg-rose-500 hover:text-white transition-all text-zinc-400 dark:text-zinc-500 rounded-minimal shadow-sm"
                 >
                   <Flag className="w-4 h-4" />
                 </button>
               </>
             ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-50/50 dark:bg-black/50">
+              <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-100/50 dark:bg-zinc-950/50">
                 {status === 'searching' ? (
-                  <div className="flex flex-col items-center gap-12 text-center">
+                  <div className="flex flex-col items-center gap-6 md:gap-12 text-center">
                     <div className="relative flex items-center justify-center">
                       <motion.div 
                         animate={{ scale: [1, 2], opacity: [0.5, 0] }}
@@ -1386,7 +1386,7 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
                         className="absolute w-16 h-16 border border-brand-accent/20 rounded-full"
                       />
                       
-                      <div className="relative w-16 h-16 border-2 border-zinc-200/50 dark:border-zinc-900 rounded-full flex items-center justify-center overflow-hidden bg-zinc-50 dark:bg-black shadow-sm">
+                      <div className="relative w-16 h-16 border-2 border-zinc-200 dark:border-zinc-800 rounded-full flex items-center justify-center overflow-hidden bg-white dark:bg-zinc-900 shadow-sm">
                         <motion.div 
                           animate={{ rotate: 360 }}
                           transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
@@ -1421,8 +1421,8 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center gap-8">
-                    <div className="w-16 h-16 bg-zinc-50 dark:bg-black border border-zinc-200/50 dark:border-zinc-900 flex items-center justify-center rounded-minimal shadow-sm">
+                  <div className="flex flex-col items-center gap-4 md:gap-8">
+                    <div className="w-16 h-16 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center rounded-minimal shadow-sm">
                       <Video className="w-8 h-8 text-zinc-200 dark:text-zinc-800" />
                     </div>
                     <button 
@@ -1439,7 +1439,7 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
         </div>
 
         {/* Global Controls */}
-        <div className="bg-zinc-50 dark:bg-black p-4 md:p-6 border border-zinc-200/50 dark:border-zinc-900 flex flex-wrap items-center justify-between gap-4 rounded-minimal shadow-sm transition-colors">
+        <div className="bg-white dark:bg-zinc-900/60 p-3 md:p-6 border border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-2 md:gap-4 rounded-minimal shadow-sm transition-colors shrink-0">
           <div className="flex items-center gap-2 md:gap-4">
             <div className="flex gap-2">
               <button 
@@ -1558,9 +1558,9 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
         </div>
       </div>
 
-      <div className="lg:col-span-4 flex flex-col gap-6 min-h-0 transition-colors">
-        <div className="flex-1 bg-zinc-50 dark:bg-black border border-zinc-200/50 dark:border-zinc-900 flex flex-col min-h-0 rounded-minimal shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-zinc-200/50 dark:border-zinc-900 flex items-center justify-between bg-zinc-100/50 dark:bg-black/50 rounded-t-minimal">
+      <div className="flex-[4] lg:col-span-4 flex flex-col gap-4 lg:gap-6 min-h-0 transition-colors">
+        <div className="flex-1 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex flex-col min-h-0 rounded-minimal shadow-lg dark:shadow-zinc-950/50 overflow-hidden">
+          <div className="p-3 md:p-6 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-zinc-100/50 dark:bg-zinc-900/50 rounded-t-minimal">
             <div className="flex items-center gap-3">
               <Shield className="w-4 h-4 text-zinc-300 dark:text-zinc-700" />
               <h2 className="text-xs font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-600">{t('app.analyst_link')}</h2>
@@ -1571,7 +1571,7 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
             </div>
           </div>
           
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-zinc-50 dark:bg-black">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-white dark:bg-zinc-900">
             <AnimatePresence mode="popLayout">
               {debateId && (
                 <AIClaimsList debateId={debateId} isVerifying={verifying} />
@@ -1579,7 +1579,7 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
             </AnimatePresence>
           </div>
 
-          <div className="p-6 border-t border-zinc-200/50 dark:border-zinc-900 bg-zinc-50 dark:bg-black">
+          <div className="p-3 md:p-6 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950">
             <div className="relative">
               <input 
                 type="text" 
@@ -1587,7 +1587,7 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleVerify(inputMessage)}
                 placeholder={t('app.log_claim')}
-                className="w-full bg-zinc-50 dark:bg-black border border-zinc-100 dark:border-zinc-900 px-5 py-4 text-xs font-bold focus:border-brand-accent/50 outline-none text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-300 dark:placeholder:text-zinc-700 pr-12 rounded-minimal shadow-sm"
+                className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 px-5 py-4 text-xs font-bold focus:border-brand-accent/50 outline-none text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-300 dark:placeholder:text-zinc-700 pr-12 rounded-minimal shadow-md dark:shadow-zinc-950/20"
               />
               <button 
                 onClick={() => {
@@ -1606,12 +1606,12 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
 
       <AnimatePresence>
         {showReportModal && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-zinc-50/90 dark:bg-black/90 backdrop-blur-md">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-zinc-100/90 dark:bg-zinc-950/90 backdrop-blur-md">
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 5 }}
-              className="bg-zinc-50 dark:bg-black border border-zinc-200/50 dark:border-zinc-900 max-w-md w-full p-10 space-y-8 rounded-minimal shadow-2xl"
+              className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 max-w-md w-full p-10 space-y-8 rounded-minimal shadow-2xl"
             >
               <div className="text-center space-y-3">
                 <Shield className="w-8 h-8 text-zinc-100 dark:text-zinc-800 mx-auto" />
@@ -1624,7 +1624,7 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
                   value={reportReason}
                   onChange={(e) => setReportReason(e.target.value)}
                   placeholder={t('app.report_placeholder')}
-                  className="w-full bg-zinc-50 dark:bg-black border border-zinc-100 dark:border-zinc-900 px-6 py-5 text-xs font-bold focus:border-brand-accent/50 outline-none text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-200 dark:placeholder:text-zinc-800 min-h-[120px] resize-none rounded-minimal shadow-sm"
+                  className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 px-6 py-5 text-xs font-bold focus:border-brand-accent/50 outline-none text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-200 dark:placeholder:text-zinc-800 min-h-[120px] resize-none rounded-minimal shadow-sm"
                 />
                 
                 <div className="grid grid-cols-2 gap-4">
@@ -1653,11 +1653,11 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
 
       <AnimatePresence>
         {showModerateModal && (
-          <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-zinc-50/95 dark:bg-black/95 backdrop-blur-xl">
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-zinc-100/95 dark:bg-zinc-950/95 backdrop-blur-xl">
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="bg-zinc-50 dark:bg-black border border-zinc-100 dark:border-zinc-900 max-w-lg w-full p-12 space-y-10 rounded-minimal shadow-2xl"
+              className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 max-w-lg w-full p-12 space-y-10 rounded-minimal shadow-2xl"
             >
               <div className="flex items-center gap-6">
                 <div className="w-16 h-16 bg-brand-accent/10 border border-brand-accent/20 rounded-minimal flex items-center justify-center">
@@ -1688,7 +1688,7 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
                         className={`py-4 rounded-minimal border text-[10px] font-black uppercase tracking-widest transition-all ${
                           banDuration === d.val 
                             ? 'bg-brand-accent text-white border-brand-accent shadow-lg shadow-brand-accent/20' 
-                            : 'bg-zinc-50 dark:bg-black border-zinc-100 dark:border-zinc-900 text-zinc-400 dark:text-zinc-500 hover:border-zinc-200 dark:hover:border-zinc-700'
+                            : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-400 dark:text-zinc-500 hover:border-zinc-300 dark:hover:border-zinc-700'
                         }`}
                       >
                         {d.label}
@@ -1706,7 +1706,7 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
                     value={banReason}
                     onChange={(e) => setBanReason(e.target.value)}
                     placeholder="Enter policy violation context..."
-                    className="w-full bg-zinc-50 dark:bg-black border border-zinc-100 dark:border-zinc-900 px-6 py-5 text-xs font-bold focus:border-brand-accent/50 outline-none text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-200 dark:placeholder:text-zinc-800 min-h-[100px] resize-none rounded-minimal shadow-sm"
+                    className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 px-6 py-5 text-xs font-bold focus:border-brand-accent/50 outline-none text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-200 dark:placeholder:text-zinc-800 min-h-[100px] resize-none rounded-minimal shadow-sm"
                   />
                 </div>
                 
@@ -1737,12 +1737,12 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
 
       <AnimatePresence>
         {showSummaryModal && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-zinc-50/95 dark:bg-black/95 backdrop-blur-xl">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-zinc-100/95 dark:bg-zinc-950/95 backdrop-blur-xl">
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
-              className="bg-zinc-50 dark:bg-black border border-zinc-100 dark:border-zinc-900 max-w-2xl w-full p-12 space-y-12 max-h-[90vh] overflow-y-auto custom-scrollbar rounded-minimal shadow-2xl"
+              className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 max-w-2xl w-full p-12 space-y-12 max-h-[90vh] overflow-y-auto custom-scrollbar rounded-minimal shadow-2xl"
             >
               <div className="text-center space-y-4">
                 <CheckCircle className="w-10 h-10 text-brand-accent mx-auto" />
@@ -1758,9 +1758,9 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
                   </h4>
                   <div className="grid grid-cols-1 gap-4">
                     {debateSummary?.verifications.map((v: any, i: number) => (
-                      <div key={i} className="bg-zinc-50 dark:bg-black border border-zinc-200/50 dark:border-zinc-900 p-6 space-y-4 rounded-minimal shadow-sm">
+                      <div key={i} className="bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 p-6 space-y-4 rounded-minimal shadow-sm">
                         <p className="text-sm font-bold text-zinc-900 dark:text-zinc-50 tracking-tight">"{v.claim}"</p>
-                        <div className="flex gap-4 items-start border-t border-zinc-100 dark:border-zinc-900 pt-4">
+                        <div className="flex gap-4 items-start border-t border-zinc-200 dark:border-zinc-800 pt-4">
                           <div className="mt-1.5 w-1 h-1 bg-zinc-200 dark:bg-zinc-700 shrink-0" />
                           <p className="text-xs text-zinc-400 dark:text-zinc-500 leading-relaxed font-medium">{v.verification}</p>
                         </div>
@@ -1850,7 +1850,7 @@ function AIClaimsList({ debateId, isVerifying }: AIClaimsListProps) {
           >
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-4">
-                <div className="w-6 h-6 bg-zinc-50 dark:bg-black border border-zinc-200/50 dark:border-zinc-900 flex items-center justify-center shrink-0 mt-1 rounded-minimal shadow-sm">
+                <div className="w-6 h-6 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center shrink-0 mt-1 rounded-minimal shadow-sm">
                   <MessageSquare className="w-3 h-3 text-brand-accent/50" />
                 </div>
                 <div className="space-y-1">
@@ -1872,7 +1872,7 @@ function AIClaimsList({ debateId, isVerifying }: AIClaimsListProps) {
               </button>
             </div>
             
-            <div className="bg-zinc-100/50 dark:bg-black/30 border border-zinc-200/50 dark:border-zinc-900 p-5 space-y-4 rounded-minimal shadow-sm relative overflow-hidden">
+            <div className="bg-zinc-100/50 dark:bg-zinc-950/30 border border-zinc-200 dark:border-zinc-800 p-5 space-y-4 rounded-minimal shadow-md dark:shadow-zinc-950/20 relative overflow-hidden">
               <div className="absolute top-0 left-0 w-1 h-full bg-brand-accent/20" />
               <div className="flex items-center gap-3">
                 <div className="w-1 h-1 bg-zinc-200 dark:bg-zinc-700 rounded-full" />
@@ -1888,7 +1888,7 @@ function AIClaimsList({ debateId, isVerifying }: AIClaimsListProps) {
         <motion.div 
           initial={{ opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-zinc-50 dark:bg-black border border-zinc-200/50 dark:border-zinc-900 p-5 flex items-center gap-4 rounded-minimal shadow-sm mt-4"
+          className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-5 flex items-center gap-4 rounded-minimal shadow-sm mt-4"
         >
           <RefreshCw className="w-4 h-4 text-brand-accent animate-spin" />
           <div>

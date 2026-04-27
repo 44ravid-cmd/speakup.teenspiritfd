@@ -199,7 +199,7 @@ export default function App() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-zinc-50 dark:bg-black text-zinc-900 dark:text-zinc-100 flex flex-col items-center justify-center p-6 relative overflow-hidden transition-colors">
+    <div className="min-h-screen bg-zinc-100 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 flex flex-col items-center justify-center p-6 relative overflow-hidden transition-colors">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-brand-accent/5 blur-[120px] rounded-full" />
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
@@ -214,7 +214,7 @@ export default function App() {
               transition={{ delay: 0.2 }}
               className="flex justify-center mb-8"
             >
-              <div className="w-16 h-16 rounded-minimal bg-zinc-50 dark:bg-black border border-white dark:border-zinc-900 shadow-sm flex items-center justify-center transition-colors">
+              <div className="w-16 h-16 rounded-minimal bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm flex items-center justify-center transition-colors">
                  <img 
                   src="https://api.dicebear.com/7.x/initials/svg?seed=SpeakUp&backgroundColor=2563eb&fontSize=45&fontWeight=800" 
                   className="w-full h-full object-contain p-3 opacity-20 dark:opacity-40" 
@@ -242,15 +242,15 @@ export default function App() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-            <div className="bg-zinc-50/80 dark:bg-black p-8 border border-zinc-200/50 dark:border-zinc-900 space-y-4 shadow-sm shadow-brand-accent/5">
-              <div className="w-8 h-8 bg-zinc-100/50 dark:bg-zinc-950 flex items-center justify-center border border-zinc-200/40 dark:border-zinc-900">
+            <div className="bg-white dark:bg-zinc-900 p-8 border border-zinc-200/50 dark:border-zinc-800 space-y-4 shadow-md shadow-zinc-200/20 dark:shadow-zinc-950/50 transition-all">
+              <div className="w-8 h-8 bg-zinc-100/50 dark:bg-zinc-800 flex items-center justify-center border border-zinc-200/40 dark:border-zinc-800">
                 <Shield className="text-zinc-300 dark:text-zinc-700 w-4 h-4" />
               </div>
               <h3 className="font-bold text-zinc-900 dark:text-white text-xs uppercase tracking-widest">Integrity</h3>
               <p className="text-[11px] text-zinc-400 dark:text-zinc-500 leading-relaxed font-medium">Misconduct results in immediate, permanent suspension.</p>
             </div>
-            <div className="bg-zinc-50/80 dark:bg-black p-8 border border-zinc-200/50 dark:border-zinc-900 space-y-4 shadow-sm shadow-brand-accent/5">
-              <div className="w-8 h-8 bg-zinc-100/50 dark:bg-zinc-950 flex items-center justify-center border border-zinc-200/40 dark:border-zinc-900">
+            <div className="bg-white dark:bg-zinc-900 p-8 border border-zinc-200/50 dark:border-zinc-800 space-y-4 shadow-md shadow-zinc-200/20 dark:shadow-zinc-950/50 transition-all">
+              <div className="w-8 h-8 bg-zinc-100/50 dark:bg-zinc-800 flex items-center justify-center border border-zinc-200/40 dark:border-zinc-800">
                 <Info className="text-zinc-300 dark:text-zinc-700 w-4 h-4" />
               </div>
               <h3 className="font-bold text-zinc-900 dark:text-white text-xs uppercase tracking-widest">Verification</h3>
@@ -280,7 +280,7 @@ export default function App() {
 
   return (
       <div 
-        className="min-h-screen lg:h-screen bg-zinc-50 dark:bg-black text-zinc-600 dark:text-zinc-400 flex flex-col overflow-x-hidden lg:overflow-hidden font-sans selection:bg-brand-accent/10 transition-colors"
+        className="h-[100dvh] bg-zinc-100 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400 flex flex-col overflow-hidden font-sans selection:bg-brand-accent/10 transition-colors"
       dir={isRTL(i18n.language) ? 'rtl' : 'ltr'}
     >
       <AnimatePresence>
@@ -299,7 +299,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <header className="border-b border-zinc-100 dark:border-zinc-900 bg-zinc-50/80 dark:bg-black/80 backdrop-blur-md sticky top-0 z-50 shrink-0 transition-colors">
+      <header className="border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md sticky top-0 z-50 shrink-0 transition-colors shadow-sm dark:shadow-zinc-950/30">
         <div className="w-full px-4 md:px-12 py-4 md:py-6 flex justify-between items-center">
           <div className="flex items-center gap-4 md:gap-8">
             <h1 className="text-xl md:text-2xl font-black tracking-tighter text-zinc-900 dark:text-zinc-50 uppercase italic">Speak Up.</h1>
@@ -309,22 +309,22 @@ export default function App() {
               {/* Theme Toggle */}
               <button
                 onClick={() => setIsDarkMode(!isDarkMode)}
-                className="p-2 bg-zinc-50 dark:bg-black border border-zinc-100 dark:border-zinc-900 rounded-minimal text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 transition-all shadow-sm"
+                className="p-2 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-minimal text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 transition-all shadow-sm"
               >
                 {isDarkMode ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
               </button>
 
               {/* Language Selector */}
-              <div className="flex items-center gap-2 bg-zinc-50 dark:bg-black px-3 py-1.5 border border-zinc-100 dark:border-zinc-900 rounded-minimal group">
+              <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-900 px-3 py-1.5 border border-zinc-200 dark:border-zinc-800 rounded-minimal group shadow-sm dark:shadow-zinc-950/20">
                 <Globe className="w-3 h-3 text-zinc-400 group-hover:text-brand-accent transition-colors" />
                 <select 
                   value={i18n.language}
                   onChange={(e) => i18n.changeLanguage(e.target.value)}
                   className="bg-transparent border-none outline-none text-[9px] md:text-[10px] font-black uppercase tracking-widest text-zinc-500 dark:text-zinc-400 cursor-pointer hover:text-zinc-900 dark:hover:text-zinc-50 transition-colors px-1"
                 >
-                  <option value="en" className="bg-white dark:bg-black text-zinc-900 dark:text-zinc-100">🇺🇸 English</option>
-                  <option value="ar" className="bg-white dark:bg-black text-zinc-900 dark:text-zinc-100">🇸🇦 العربية</option>
-                  <option value="he" className="bg-white dark:bg-black text-zinc-900 dark:text-zinc-100">🇮🇱 עברית</option>
+                  <option value="en" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">🇺🇸 English</option>
+                  <option value="ar" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">🇸🇦 العربية</option>
+                  <option value="he" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">🇮🇱 עברית</option>
                 </select>
               </div>
 
@@ -362,8 +362,8 @@ export default function App() {
               </div>
 
               <div className="relative group ml-1 md:ml-2">
-                <img src={user.photoURL || ''} className="w-8 h-8 md:w-10 md:h-10 rounded-minimal border border-zinc-200/50 dark:border-zinc-900 object-cover" referrerPolicy="no-referrer" />
-                <div className="absolute inset-0 rounded-minimal border border-zinc-200/50 dark:border-zinc-900 group-hover:border-brand-accent transition-all pointer-events-none" />
+                <img src={user.photoURL || ''} className="w-8 h-8 md:w-10 md:h-10 rounded-minimal border border-zinc-300 dark:border-zinc-700 object-cover" referrerPolicy="no-referrer" />
+                <div className="absolute inset-0 rounded-minimal border border-zinc-300 dark:border-zinc-700 group-hover:border-brand-accent transition-all pointer-events-none" />
               </div>
 
               <button 
@@ -378,14 +378,14 @@ export default function App() {
         </div>
       </header>
 
-      <main className="flex-1 w-full flex flex-col min-h-0 bg-zinc-50/30 dark:bg-black transition-colors">
+      <main className="flex-1 w-full flex flex-col min-h-0 bg-zinc-50 dark:bg-zinc-950 transition-colors">
         <AnimatePresence>
           {showInviteToast && (
             <motion.div 
               initial={{ opacity: 0, scale: 0.9, y: 15, x: '-50%' }}
               animate={{ opacity: 1, scale: 1, y: 0, x: '-50%' }}
               exit={{ opacity: 0, scale: 0.9, y: 10, x: '-50%' }}
-              className="fixed bottom-12 left-1/2 z-[100] bg-zinc-50 dark:bg-black border border-zinc-100 dark:border-zinc-900 px-8 py-3 shadow-2xl text-center rounded-minimal"
+              className="fixed bottom-12 left-1/2 z-[100] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 px-8 py-3 shadow-2xl text-center rounded-minimal"
             >
               <div className="flex items-center gap-4">
                 <Copy className="w-3.5 h-3.5 text-blue-500" />
@@ -396,9 +396,9 @@ export default function App() {
         </AnimatePresence>
 
         {roomId && (
-          <div className="mx-6 sm:mx-10 mt-6 flex items-center justify-between bg-zinc-50 dark:bg-black border border-zinc-100 dark:border-zinc-900 p-5 rounded-minimal shadow-sm">
+          <div className="mx-6 sm:mx-10 mt-6 flex items-center justify-between bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-5 rounded-minimal shadow-md dark:shadow-zinc-950/30">
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-zinc-50 dark:bg-black flex items-center justify-center border border-zinc-100 dark:border-zinc-900 rounded-minimal">
+              <div className="w-10 h-10 bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center border border-zinc-200 dark:border-zinc-800 rounded-minimal">
                 <Shield className="w-5 h-5 text-brand-accent/50" />
               </div>
               <div className="text-left">
