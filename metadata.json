@@ -1,0 +1,8 @@
+{
+  "name": "Speak Up",
+  "description": "A real-time video debate platform for discussing the Israel-Palestine conflict with AI-powered claim verification and safety moderation.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}

@@ -1,0 +1,52 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function isSignedIn() { return request.auth != null; }
+    function isAdmin() { 
+      return isSignedIn() && (
+        get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data.isAdmin == true || 
+        request.auth.token.email == '44ravid@gmail.com'
+      ); 
+    }
+
+    match /{document=**} {
+      allow read, write: if isSignedIn();
+    }
+
+    match /profiles/{userId} {
+      allow read: if true;
+      allow write: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+    }
+
+    match /users/{userId} {
+      allow read, write: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+    }
+
+    match /debates/{debateId} {
+      allow read: if isSignedIn() && (resource.data.participants.hasAny([request.auth.uid]) || isAdmin());
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (resource.data.participants.hasAny([request.auth.uid]) || isAdmin());
+
+      match /signals/{signalId} {
+        allow read, write: if isSignedIn();
+      }
+    }
+
+    match /reports/{reportId} {
+      allow create: if isSignedIn();
+      allow read: if isSignedIn() && (resource.data.reporterId == request.auth.uid || resource.data.reportedId == request.auth.uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    match /bans/{banId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin();
+    }
+
+    match /queue/{userId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && request.auth.uid == userId;
+    }
+  }
+}
