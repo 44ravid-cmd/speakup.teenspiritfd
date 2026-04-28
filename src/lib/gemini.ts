@@ -24,16 +24,20 @@ export async function verifyClaim(claim: string) {
 
 export async function generateTopicSuggestion(opinionA: string, opinionB: string) {
   try {
+    const randomSeed = Math.random().toString(36).substring(7);
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Suggest a unique, specific, and controversial sub-topic or question for a debate specifically about the Israel-Palestine conflict. 
+      contents: `Suggest a very simple, relatable, and easy-to-understand question for a casual debate about the Israel-Palestine conflict suitable for 13-18 year olds. 
       The debate is between someone who is "${opinionA}" and someone who is "${opinionB}".
-      MANDATORY: Every suggestion MUST be directly and explicitly related to the history, politics, or ethics of the Israel-Palestine conflict.
-      Ensure the topic is different from common superficial questions like "who is right" or "two state solution". 
-      Focus on niche historical events, specific policy impacts (e.g., Water rights, the 1948 borders, specific UN resolutions), or distinct ethical dilemmas.
-      Avoid repetition and keep it under 15 words.`,
+      MANDATORY: 
+      1. Use common language that a 13-year-old would understand.
+      2. Focus on peace, coexistence, human stories, or simple "What if" scenarios.
+      3. Avoid technical political terms, specific dates before 2000, or legal jargon.
+      4. Reference code: ${randomSeed} (ensure this is a unique topic every time).
+      Example topics: "How can sports bring people together?", "Why is it important to listen to the other side?", "Can we be friends even if our families disagree?".
+      Keep it under 8 words.`,
       config: {
-        systemInstruction: "Suggest a single, provocative, and neutral starting point for a discussion. Do not provide background, just the question. Prioritize depth and novelty. All topics MUST be within the Israel-Palestine context.",
+        systemInstruction: "Suggest a single, very simple, and empathy-focused starting point for a conversation between young people. Do not provide background. All topics MUST be within the Israel-Palestine context but oriented towards understanding and bridge-building.",
       }
     });
     return response.text;

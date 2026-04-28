@@ -2,48 +2,90 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
+    // Global Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
     function isSignedIn() { return request.auth != null; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    
     function isAdmin() { 
       return isSignedIn() && (
-        get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data.isAdmin == true || 
-        request.auth.token.email == '44ravid@gmail.com'
+        request.auth.token.email == '44ravid@gmail.com' ||
+        (exists(/databases/$(database)/documents/profiles/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data.isAdmin == true)
       ); 
     }
 
-    match /{document=**} {
-      allow read, write: if isSignedIn();
-    }
-
-    match /profiles/{userId} {
+    // Connection Test Document
+    match /system/connection-test {
       allow read: if true;
-      allow write: if isSignedIn() && (request.auth.uid == userId || isAdmin());
     }
 
+    // Profiles
+    match /profiles/{userId} {
+      function isValidProfile(data) {
+        return data.keys().hasAll(['uid', 'displayName', 'opinion']) &&
+               data.uid == request.auth.uid &&
+               data.displayName is string && data.displayName.size() <= 50 &&
+               data.opinion in ['Pro Israel', 'Pro Palestine', 'Neutral'];
+      }
+      
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.auth.uid == userId && isValidProfile(incoming()) && (
+        // Only allow setting special flags if it's the superuser OR if flags are false
+        (incoming().get('isAdmin', false) == false || request.auth.token.email == '44ravid@gmail.com') &&
+        (incoming().get('isBanned', false) == false)
+      );
+      allow update: if isSignedIn() && (request.auth.uid == userId || isAdmin()) && (
+        (request.auth.uid == userId && incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'opinion', 'photoURL'])) ||
+        isAdmin()
+      );
+    }
+
+    // Private user data
     match /users/{userId} {
-      allow read, write: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      function isValidPrivate(data) {
+        return data.email is string && data.email == request.auth.token.email;
+      }
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow create: if isSignedIn() && request.auth.uid == userId && isValidPrivate(incoming());
+      allow update: if isSignedIn() && (request.auth.uid == userId || isAdmin());
     }
 
+    // Debates
     match /debates/{debateId} {
+      function isValidDebate(data) {
+        return data.participants is list && data.participants.size() == 2 &&
+               data.status in ['active', 'ended'];
+      }
+
       allow read: if isSignedIn() && (resource.data.participants.hasAny([request.auth.uid]) || isAdmin());
-      allow create: if isSignedIn();
+      allow create: if isSignedIn() && incoming().participants.hasAny([request.auth.uid]) && isValidDebate(incoming());
       allow update: if isSignedIn() && (resource.data.participants.hasAny([request.auth.uid]) || isAdmin());
 
       match /signals/{signalId} {
-        allow read, write: if isSignedIn();
+        allow read, write: if isSignedIn() && (get(/databases/$(database)/documents/debates/$(debateId)).data.participants.hasAny([request.auth.uid]) || isAdmin());
       }
     }
 
+    // Reports
     match /reports/{reportId} {
-      allow create: if isSignedIn();
+      allow create: if isSignedIn() && incoming().reporterId == request.auth.uid;
       allow read: if isSignedIn() && (resource.data.reporterId == request.auth.uid || resource.data.reportedId == request.auth.uid || isAdmin());
       allow delete: if isAdmin();
     }
 
+    // Bans
     match /bans/{banId} {
       allow read: if isAdmin();
       allow create: if isAdmin();
     }
 
+    // Queue
     match /queue/{userId} {
       allow read: if isSignedIn();
       allow write: if isSignedIn() && request.auth.uid == userId;

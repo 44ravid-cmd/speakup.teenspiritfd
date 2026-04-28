@@ -15,6 +15,7 @@ interface Props {
 export default function DebateRoom({ user, profile, roomId }: Props) {
   const { t } = useTranslation();
   const [status, setStatus] = useState<'idle' | 'searching' | 'connected'>('idle');
+  const [recentMatches, setRecentMatches] = useState<string[]>([]);
   const [remoteProfile, setRemoteProfile] = useState<any>(null);
   const [debateId, setDebateId] = useState<string | null>(null);
   const [inputMessage, setInputMessage] = useState('');
@@ -333,30 +334,29 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           video: { 
-            deviceId: selectedVideo ? { exact: selectedVideo } : undefined,
+            deviceId: selectedVideo ? { ideal: selectedVideo } : undefined,
             width: { ideal: 640 },
             height: { ideal: 480 },
             facingMode: "user"
           },
           audio: { 
-            deviceId: selectedAudio ? { exact: selectedAudio } : undefined,
+            deviceId: selectedAudio ? { ideal: selectedAudio } : undefined,
             echoCancellation: true,
             noiseSuppression: true
           }
         });
         return finalizeStream(stream);
       } catch (e: any) {
-        // Fallback: If full stream fails, try audio only to at least allow voice participation
-        if (e.name === 'NotReadableError' || e.name === 'TrackStartError') {
-          console.warn("Full acquisition failed, trying audio-only fallback...");
+        // Fallback: If full stream fails or device not found, try audio only or more relaxed constraints
+        if (e.name === 'NotReadableError' || e.name === 'TrackStartError' || e.name === 'NotFoundError' || e.name === 'OverconstrainedError') {
+          console.warn("Full or constrained acquisition failed, trying fallback...", e.name);
           const audioStream = await navigator.mediaDevices.getUserMedia({
-            audio: { 
-              deviceId: selectedAudio ? { exact: selectedAudio } : undefined,
-              echoCancellation: true,
-              noiseSuppression: true
-            }
-          });
-          setIsCameraOff(true); // Force camera state to reflect fallback
+            audio: true
+          }).catch(() => null);
+          
+          if (!audioStream) throw e; // Both failed
+
+          setIsCameraOff(true); 
           setCameraError(t('app.audio_only_fallback'));
           return finalizeStream(audioStream);
         }
@@ -451,20 +451,29 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
 
   useEffect(() => {
     if (status === 'connected' && remoteVideoRef.current && remoteStream) {
-      console.log("Forcing remote video playback", remoteStream.id);
-      remoteVideoRef.current.srcObject = remoteStream;
+      if (remoteVideoRef.current.srcObject !== remoteStream) {
+        console.log("Updating remote video srcObject", remoteStream.id);
+        remoteVideoRef.current.srcObject = remoteStream;
+      }
       
       const playPromise = remoteVideoRef.current.play();
       if (playPromise !== undefined) {
         playPromise.catch(e => {
-          console.warn("Autoplay blocked:", e);
-          setAudioBlocked(true);
+          if (e.name === 'AbortError') {
+            console.log("Playback interrupted by new load, safe to ignore.");
+          } else {
+            console.warn("Autoplay blocked:", e);
+            setAudioBlocked(true);
+          }
         });
       }
     }
   }, [status, remoteStream]);
 
   const handleSearch = async () => {
+    // START MEDIA FIRST to ensure user gesture context is preserved for iOS Safari
+    const preStream = await startLocalStream();
+    
     if (!auth.currentUser) {
       setTimeout(handleSearch, 500);
       return;
@@ -473,7 +482,7 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
     searchingRef.current = true;
     setStatus('searching');
     
-    // Cleanup any existing search state before starting a new one
+    // Cleanup any existing search state...
     if (heartbeatRef.current) clearInterval(heartbeatRef.current);
     if (unsubQueueRef.current) unsubQueueRef.current();
     if (unsubDebatesRef.current) unsubDebatesRef.current();
@@ -491,7 +500,7 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
           timestamp: serverTimestamp(),
           ...(roomId && { roomId }),
           searching: true,
-          mediaReady: hasMedia || !!localStreamRef.current
+          mediaReady: hasMedia || !!localStreamRef.current || !!preStream
         });
       } catch (error) {
         if (searchingRef.current) {
@@ -612,7 +621,10 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
         const lastSeen = data.timestamp?.toDate()?.getTime() || 0;
         const isRecent = Math.abs(now - lastSeen) < 300000;
         
-        if (isSelf || !isRecent) return false;
+        // Skip people we just talked to
+        const isRecentMatch = recentMatches.includes(d.id);
+
+        if (isSelf || !isRecent || isRecentMatch) return false;
         
         if (roomId) return data.roomId === roomId;
         if (matchAnyOpinion) return true; // Open spectrum
@@ -751,6 +763,7 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
         { urls: 'stun:stun.services.mozilla.com' },
         { urls: 'stun:global.stun.twilio.com:3478' }
       ],
+      bundlePolicy: 'max-compat',
       iceCandidatePoolSize: 10
     });
     peerConnection.current = pc;
@@ -807,6 +820,11 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
           console.log(`Processing signal: ${data.type} from ${data.senderId}`);
 
           if (data.type === 'offer') {
+            if (pc.signalingState !== 'stable') {
+              console.warn("Received offer in non-stable state, attempting to resync");
+              // If we are a caller and get an offer, we might have a collision. 
+              // Simple resolution: caller keeps its offer if priority is higher, but here we just try to set it.
+            }
             await pc.setRemoteDescription(new RTCSessionDescription(signal));
             const answer = await pc.createAnswer();
             await pc.setLocalDescription(answer);
@@ -823,6 +841,10 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
               if (candidate) await pc.addIceCandidate(new RTCIceCandidate(candidate));
             }
           } else if (data.type === 'answer') {
+            if (pc.signalingState !== 'have-local-offer') {
+               console.warn("Received answer in unexpected state:", pc.signalingState);
+               return; 
+            }
             await pc.setRemoteDescription(new RTCSessionDescription(signal));
             // Process queued candidates now that we have a remote description
             while (iceCandidateQueue.length > 0) {
@@ -1004,6 +1026,9 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
   };
 
   const handleSkip = async () => {
+    if (remoteProfile?.uid) {
+      setRecentMatches(prev => [...prev, remoteProfile.uid].slice(-5));
+    }
     searchingRef.current = false;
     if (heartbeatRef.current) {
       clearInterval(heartbeatRef.current);
@@ -1124,19 +1149,19 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
   };
 
   return (
-    <div className="flex-1 overflow-hidden flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-6 p-2 md:p-8 bg-zinc-100 dark:bg-zinc-950">
-      <div className="flex-[5] lg:col-span-8 flex flex-col gap-3 lg:gap-6 min-h-0">
+    <div className="flex-1 overflow-hidden flex flex-col lg:grid lg:grid-cols-12 gap-2 lg:gap-6 p-1 md:p-8 bg-zinc-100 dark:bg-zinc-950">
+      <div className="flex-[5] lg:col-span-8 flex flex-col gap-2 lg:gap-6 min-h-0">
         <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2 lg:gap-4 relative min-h-0">
-          {/* Topic Insight Overlay */}
+          {/* Topic Insight Overlay - Simplified for mobile */}
           {status === 'connected' && (
             <div className="absolute top-2 start-1/2 -translate-x-1/2 z-40">
               <button 
                 onClick={handleSuggestTopic}
                 disabled={suggestingTopic}
-                className="btn-minimal flex items-center gap-2 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-zinc-200 dark:border-zinc-800"
+                className="px-4 py-2 flex items-center gap-2 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm border border-zinc-200 dark:border-zinc-800 rounded-full shadow-lg"
               >
-                <RefreshCw className={`w-3 h-3 ${suggestingTopic ? 'animate-spin' : ''}`} />
-                {t('app.suggest_topic')}
+                <RefreshCw className={`w-3.5 h-3.5 ${suggestingTopic ? 'animate-spin' : ''}`} />
+                <span className="text-[10px] font-bold uppercase tracking-widest">{t('app.suggest_topic')}</span>
               </button>
             </div>
           )}
@@ -1439,12 +1464,12 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
         </div>
 
         {/* Global Controls */}
-        <div className="bg-white dark:bg-zinc-900/60 p-3 md:p-6 border border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-2 md:gap-4 rounded-minimal shadow-sm transition-colors shrink-0">
+        <div className="bg-white dark:bg-zinc-900/60 p-4 md:p-6 border border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-3 md:gap-4 rounded-minimal shadow-sm transition-colors shrink-0">
           <div className="flex items-center gap-2 md:gap-4">
             <div className="flex gap-2">
               <button 
                 onClick={() => setIsMuted(!isMuted)}
-                className={`p-3 md:p-4 border transition-all rounded-minimal relative ${
+                className={`p-4 border transition-all rounded-minimal relative ${
                   isMuted 
                     ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-100 dark:border-rose-500/20 text-rose-500' 
                     : isSpeaking 
@@ -1452,20 +1477,20 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
                       : 'bg-brand-accent/5 dark:bg-brand-accent/10 border-brand-accent/20 dark:border-brand-accent/30 text-brand-accent hover:bg-brand-accent hover:text-white'
                 }`}
               >
-                {isMuted ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                {isMuted ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
                 {isSpeaking && !isMuted && (
-                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-brand-accent rounded-full border-2 border-zinc-200/50 dark:border-zinc-950" />
+                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-brand-accent rounded-full border-2 border-zinc-200/50 dark:border-zinc-950" />
                 )}
               </button>
               <button 
                 onClick={() => setIsCameraOff(!isCameraOff)}
-                className={`p-3 md:p-4 border transition-all rounded-minimal ${
+                className={`p-4 border transition-all rounded-minimal ${
                   isCameraOff 
                     ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-100 dark:border-rose-500/20 text-rose-500' 
                     : 'bg-brand-accent/5 dark:bg-brand-accent/10 border-brand-accent/20 dark:border-brand-accent/30 text-brand-accent hover:bg-brand-accent hover:text-white'
                 }`}
               >
-                {isCameraOff ? <CameraOff className="w-4 h-4" /> : <Camera className="w-4 h-4" />}
+                {isCameraOff ? <CameraOff className="w-5 h-5" /> : <Camera className="w-5 h-5" />}
               </button>
             </div>
 
@@ -1473,9 +1498,9 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
 
             <button 
               onClick={handleRefreshCamera}
-              className="p-3 md:p-4 bg-brand-accent/5 dark:bg-brand-accent/10 border border-brand-accent/20 dark:border-brand-accent/30 text-brand-accent hover:bg-brand-accent hover:text-white transition-all rounded-minimal"
+              className="p-4 bg-brand-accent/5 dark:bg-brand-accent/10 border border-brand-accent/20 dark:border-brand-accent/30 text-brand-accent hover:bg-brand-accent hover:text-white transition-all rounded-minimal"
             >
-              <RefreshCw className="w-4 h-4" />
+              <RefreshCw className="w-5 h-5" />
             </button>
 
             <div className="relative">

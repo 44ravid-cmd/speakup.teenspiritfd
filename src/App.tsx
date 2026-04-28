@@ -23,8 +23,13 @@ export default function App() {
 
   const [isDarkMode, setIsDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('theme');
-      return saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      try {
+        const saved = localStorage.getItem('theme');
+        return saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      } catch (err) {
+        console.warn("Storage access denied:", err);
+        return false;
+      }
     }
     return false;
   });
@@ -32,10 +37,10 @@ export default function App() {
   useEffect(() => {
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
+      try { localStorage.setItem('theme', 'dark'); } catch (e) {}
     } else {
       document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
+      try { localStorage.setItem('theme', 'light'); } catch (e) {}
     }
   }, [isDarkMode]);
 
@@ -46,53 +51,127 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const room = params.get('room');
-    if (room) setRoomId(room);
+    const handleError = (event: ErrorEvent | PromiseRejectionEvent) => {
+      const msg = 'reason' in event ? (event.reason?.message || String(event.reason)) : event.message;
+      console.error("Global Error Caught:", msg);
+      // We don't necessarily want to block the whole app for every minor error, 
+      // but for "not working" login, it's useful.
+      if (msg.includes('auth') || msg.includes('firebase') || msg.includes('Firestore')) {
+         setError(`System Alert: ${msg}`);
+      }
+    };
+    window.addEventListener('error', handleError);
+    window.addEventListener('unhandledrejection', handleError);
+    return () => {
+      window.removeEventListener('error', handleError);
+      window.removeEventListener('unhandledrejection', handleError);
+    };
   }, []);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const room = params.get('room');
+    if (room) {
+      console.log("Room ID found in URL:", room);
+      setRoomId(room);
+    }
+  }, []);
+
+  const unsubProfileRef = useRef<(() => void) | null>(null);
+  const unsubPrivateRef = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
+    console.log("Initializing Auth Listener...");
+    
+    // Handle redirect result if any
+    import('firebase/auth').then(({ getRedirectResult }) => {
+      getRedirectResult(auth).catch((err) => {
+        console.error("Redirect login error:", err);
+        setError(`Redirect Login Failed: ${err.message}`);
+      });
+    });
+
+    const timeout = setTimeout(() => {
+      if (loading && !user) {
+        console.warn("Initial loading taking longer than 8s. Checking connection...");
+        setError("Connection is slow. Please check your internet or refresh.");
+      }
+    }, 8000);
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
+      console.log("Auth State Changed:", user ? `Logged in: ${user.email}` : "Logged out");
       setUser(user);
       
+      // Cleanup previous listeners if any
+      if (unsubProfileRef.current) unsubProfileRef.current();
+      if (unsubPrivateRef.current) unsubPrivateRef.current();
+
       if (!user) {
         setProfile(null);
         setLoading(false);
+        clearTimeout(timeout);
         return;
       }
 
       // Listen to profile and private data
-      const unsubProfile = onSnapshot(doc(db, 'profiles', user.uid), (snap) => {
+      console.log("Synchronizing Profile Data...");
+      let profileStarted = false;
+      unsubProfileRef.current = onSnapshot(doc(db, 'profiles', user.uid), (snap) => {
+        console.log("Profile Data Update Received");
+        profileStarted = true;
         const data = snap.exists() ? snap.data() : null;
         if (data && !data.isAdmin && user.email === '44ravid@gmail.com') {
           updateDoc(doc(db, 'profiles', user.uid), { isAdmin: true }).catch(console.error);
         }
         setProfile(data);
         setLoading(false);
+        clearTimeout(timeout);
       }, (err) => {
         console.error("Profile snapshot error:", err);
         setLoading(false);
+        clearTimeout(timeout);
+        setError(`Database Error: ${err.message}`);
       });
 
-      const unsubPrivate = onSnapshot(doc(db, 'users', user.uid), (snap) => {
+      unsubPrivateRef.current = onSnapshot(doc(db, 'users', user.uid), (snap) => {
         setUserPrivate(snap.exists() ? snap.data() : null);
       }, (err) => {
-        console.error("Private data snapshot error:", err);
+        if (!err.message.includes('permissions')) {
+          console.error("Private data snapshot error:", err);
+        }
       });
-
-      return () => {
-        unsubProfile();
-        unsubPrivate();
-      };
     });
-    return () => unsubscribe();
+
+    return () => {
+      unsubscribe();
+      if (unsubProfileRef.current) unsubProfileRef.current();
+      if (unsubPrivateRef.current) unsubPrivateRef.current();
+    };
   }, []);
 
-  const handleLogin = async () => {
+  const handleLogin = async (useRedirect = false) => {
+    if (loading) return;
+    setError(null);
     try {
-      await signInWithPopup(auth, googleProvider);
-    } catch (err) {
-      setError("Failed to sign in. Please try again.");
+      console.log(`Initiating Google Sign-In (${useRedirect ? 'Redirect' : 'Popup'})...`);
+      if (useRedirect) {
+        const { signInWithRedirect } = await import('firebase/auth');
+        await signInWithRedirect(auth, googleProvider);
+      } else {
+        const result = await signInWithPopup(auth, googleProvider);
+        console.log("Sign-in successful:", result.user.email);
+      }
+    } catch (err: any) {
+      console.error("Sign-in error detail:", err);
+      if (err.code === 'auth/popup-blocked') {
+        setError("Sign-in popup was blocked. Try using the 'Redirect Login' link below or enable popups.");
+      } else if (err.code === 'auth/popup-closed-by-user') {
+        setError("Sign-in was cancelled.");
+      } else if (err.code === 'auth/unauthorized-domain') {
+        setError(`Domain not authorized. Add '${window.location.hostname}' to Firebase console.`);
+      } else {
+        setError(`Failed to sign in: ${err.message || "Unknown error"}.`);
+      }
     }
   };
 
@@ -157,15 +236,44 @@ export default function App() {
     return () => unsubReports();
   }, [user, profile, userPrivate]);
 
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-zinc-50 dark:bg-black flex items-center justify-center transition-colors">
+      <div className="min-h-screen bg-zinc-50 dark:bg-black flex flex-col items-center justify-center transition-colors p-8 space-y-8">
         <motion.div 
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
         >
           <RefreshCw className="text-zinc-200 dark:text-zinc-900 w-12 h-12" />
         </motion.div>
+        
+        {error && (
+          <div className="max-w-xs text-center space-y-4">
+            <p className="text-rose-500 text-[10px] font-black uppercase tracking-widest">{error}</p>
+            <button 
+              onClick={() => window.location.reload()}
+              className="text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 text-[9px] font-bold uppercase tracking-widest border-b border-zinc-200 dark:border-zinc-800"
+            >
+              Force Refresh
+            </button>
+          </div>
+        )}
+
+        <div className="pt-12 text-center">
+            <p className="text-zinc-300 dark:text-zinc-800 text-[8px] font-black uppercase tracking-[0.4em] mb-4">
+              Syncing Security Protocols
+            </p>
+            <button 
+              onClick={() => {
+                signOut(auth);
+                window.location.reload();
+              }}
+              className="px-4 py-2 text-zinc-400 hover:text-rose-500 transition-colors text-[9px] font-bold uppercase tracking-widest"
+            >
+              Reset Session
+            </button>
+        </div>
       </div>
     );
   }
@@ -241,6 +349,17 @@ export default function App() {
             </p>
           </div>
 
+          {error && (
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 p-4 rounded-minimal flex items-center gap-3 text-rose-600 dark:text-rose-400 text-xs font-bold uppercase tracking-wider"
+            >
+              <AlertTriangle className="w-4 h-4 shrink-0" />
+              {error}
+            </motion.div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
             <div className="bg-white dark:bg-zinc-900 p-8 border border-zinc-200/50 dark:border-zinc-800 space-y-4 shadow-md shadow-zinc-200/20 dark:shadow-zinc-950/50 transition-all">
               <div className="w-8 h-8 bg-zinc-100/50 dark:bg-zinc-800 flex items-center justify-center border border-zinc-200/40 dark:border-zinc-800">
@@ -258,14 +377,65 @@ export default function App() {
             </div>
           </div>
 
-          <div className="pt-8">
+          <div className="pt-8 space-y-6">
             <button 
               onClick={handleLogin}
-              className="w-full md:w-auto bg-brand-accent text-white font-bold py-4 px-12 rounded-minimal transition-all hover:brightness-110 active:scale-95 text-xs uppercase tracking-widest shadow-xl shadow-brand-accent/20"
+              className="w-full md:w-auto bg-brand-accent text-white font-black py-5 px-16 rounded-minimal transition-all hover:brightness-110 active:scale-95 text-sm uppercase tracking-widest shadow-xl shadow-brand-accent/30 border border-transparent"
             >
               Initialize Session
             </button>
-            <p className="mt-8 text-zinc-800 text-[9px] font-bold uppercase tracking-[0.4em]">
+            <div className="bg-zinc-200/30 dark:bg-zinc-900/40 p-6 rounded-minimal border border-zinc-200 dark:border-zinc-800 text-left space-y-2">
+              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2 flex items-center gap-2">
+                <Info className="w-3 h-3" />
+                Connection Troubleshooting
+              </p>
+              <ul className="text-[11px] text-zinc-500 dark:text-zinc-600 space-y-1 ml-4 list-disc italic font-medium">
+                <li>Ensure popups are enabled in your mobile browser settings.</li>
+                <li>Disable "Private" or "Incognito" mode if login fails.</li>
+                <li>On iOS, check "Settings &gt; Safari &gt; Block Pop-ups".</li>
+                <li>
+                  <button 
+                    onClick={() => handleLogin(true)}
+                    className="text-brand-accent hover:underline font-black uppercase tracking-tighter"
+                  >
+                    Try Redirect Login (Recommended for Mobile)
+                  </button>
+                </li>
+              </ul>
+              <div className="pt-4 mt-4 border-t border-zinc-200/50 dark:border-zinc-800/50">
+                <button 
+                  onClick={() => setShowDiagnostics(!showDiagnostics)}
+                  className="text-[9px] text-zinc-400 uppercase tracking-widest font-black flex items-center gap-2"
+                >
+                  <Activity className="w-2.5 h-2.5" />
+                  {showDiagnostics ? "Hide Diagnostics" : "System Diagnostics"}
+                </button>
+                
+                {showDiagnostics && (
+                  <motion.div 
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    className="mt-4 p-4 bg-zinc-950 text-zinc-500 font-mono text-[9px] rounded-minimal space-y-2 overflow-hidden"
+                  >
+                    <p><span className="text-emerald-500">URL:</span> {window.location.origin}</p>
+                    <p><span className="text-emerald-500">Auth:</span> {auth.currentUser ? "STAGED" : "NULL"}</p>
+                    <p><span className="text-emerald-500">UserAgent:</span> {navigator.userAgent.substring(0, 50)}...</p>
+                    <p><span className="text-emerald-500">Popups:</span> {window.open ? "SUPPORTED" : "BLOCKED"}</p>
+                    <p><span className="text-emerald-500">Storage:</span> {(() => { try { localStorage.setItem('test', '1'); return "OK"; } catch(e) { return "ERROR"; } })()}</p>
+                    <button 
+                      onClick={() => {
+                        console.clear();
+                        window.location.reload();
+                      }}
+                      className="mt-2 bg-zinc-900 px-3 py-1 text-zinc-300 border border-zinc-800 transition-colors hover:bg-zinc-800"
+                    >
+                      Clear & Refresh
+                    </button>
+                  </motion.div>
+                )}
+              </div>
+            </div>
+            <p className="text-zinc-800 dark:text-zinc-500 text-[9px] font-black uppercase tracking-[0.4em]">
               Professional code of conduct enforced
             </p>
           </div>

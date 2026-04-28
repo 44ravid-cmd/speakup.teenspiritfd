@@ -20,13 +20,13 @@
       "type": "object",
       "properties": {
         "email": { "type": "string" },
-        "age": { "type": "number" },
         "reportsCount": { "type": "number" },
         "banUntil": { "type": "string", "format": "date-time" },
         "banReason": { "type": "string" },
-        "createdAt": { "type": "string", "format": "date-time" }
+        "createdAt": { "type": "string", "format": "date-time" },
+        "acceptedTermsAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["email", "age"]
+      "required": ["email"]
     },
     "DebateSession": {
       "title": "DebateSession",

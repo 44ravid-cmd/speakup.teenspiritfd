@@ -56,12 +56,12 @@
 }
 
 .btn-minimal {
-  @apply px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all rounded-minimal border border-zinc-200 bg-white text-zinc-600 shadow-sm hover:border-brand-accent hover:text-brand-accent hover:shadow-md disabled:opacity-30;
+  @apply px-5 py-3 md:py-2 text-base md:text-xs font-bold uppercase tracking-wider transition-all rounded-minimal border border-zinc-200 bg-white text-zinc-600 shadow-sm hover:border-brand-accent hover:text-brand-accent hover:shadow-md disabled:opacity-30;
   @apply dark:border-zinc-800 dark:bg-zinc-900/60 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100 dark:shadow-zinc-950/50;
 }
 
 .btn-primary {
-  @apply px-6 py-2.5 text-xs font-bold uppercase tracking-widest bg-emerald-600 text-white rounded-minimal hover:bg-emerald-500 shadow-lg shadow-emerald-500/20 transition-all border border-transparent active:scale-[0.98];
+  @apply px-8 py-4 md:py-2.5 text-sm md:text-xs font-bold uppercase tracking-widest bg-emerald-600 text-white rounded-minimal hover:bg-emerald-500 shadow-lg shadow-emerald-500/20 transition-all border border-transparent active:scale-[0.98];
   @apply dark:bg-emerald-700 dark:hover:bg-emerald-600 dark:shadow-xl dark:shadow-emerald-950/50;
 }
 

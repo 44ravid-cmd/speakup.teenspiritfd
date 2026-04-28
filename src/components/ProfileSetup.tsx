@@ -49,7 +49,7 @@ export default function ProfileSetup({ user, onComplete }: Props) {
       
       onComplete(profileData);
     } catch (err) {
-      handleFirestoreError(err, OperationType.WRITE, `profiles/users/${user.uid}`);
+      handleFirestoreError(err, OperationType.WRITE, `profiles/${user.uid}`);
       setError("Failed to save profile. Please try again.");
     } finally {
       setLoading(false);
