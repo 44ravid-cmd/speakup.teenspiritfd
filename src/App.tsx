@@ -422,6 +422,28 @@ export default function App() {
                     <p><span className="text-emerald-500">UserAgent:</span> {navigator.userAgent.substring(0, 50)}...</p>
                     <p><span className="text-emerald-500">Popups:</span> {window.open ? "SUPPORTED" : "BLOCKED"}</p>
                     <p><span className="text-emerald-500">Storage:</span> {(() => { try { localStorage.setItem('test', '1'); return "OK"; } catch(e) { return "ERROR"; } })()}</p>
+                    <p><span className="text-emerald-500">Media Devices:</span> {!!navigator.mediaDevices ? "OK" : "MISSING"}</p>
+                    <p className="text-zinc-600 mt-1 uppercase tracking-tighter">Diagnostic Report Trace:</p>
+                    <div className="bg-black/50 p-2 rounded text-[7px] text-zinc-500 space-y-1">
+                      <p>- {window.location.protocol === 'https:' ? 'HTTPS Secured' : 'INSECURE CONTEXT'}</p>
+                      <p>- {window.isSecureContext ? 'Secure Context' : 'Legacy Context'}</p>
+                      {navigator.permissions && (navigator.permissions as any).query && (
+                        <p id="cam-diag">- Camera: PENDING...</p>
+                      )}
+                    </div>
+                    <button 
+                      onClick={() => {
+                        if (navigator.permissions && (navigator.permissions as any).query) {
+                          navigator.permissions.query({ name: 'camera' as any }).then(s => {
+                            const el = document.getElementById('cam-diag');
+                            if (el) el.innerText = `- Camera: ${s.state.toUpperCase()}`;
+                          });
+                        }
+                      }}
+                      className="mt-2 text-[7px] text-emerald-500 hover:underline"
+                    >
+                      Run Media Scan
+                    </button>
                     <button 
                       onClick={() => {
                         console.clear();

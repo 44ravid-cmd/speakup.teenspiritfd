@@ -309,6 +309,22 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
 
     isAcquiringRef.current = true;
     setCameraError(null);
+    
+    // DIAGNOSTIC: Check permission state if supported
+    if (navigator.permissions && (navigator.permissions as any).query) {
+      try {
+        const status = await navigator.permissions.query({ name: 'camera' as any });
+        console.log("Camera permission state:", status.state);
+        if (status.state === 'denied') {
+          setCameraError(t('app.camera_error_denied'));
+          isAcquiringRef.current = false;
+          return null;
+        }
+      } catch (e) {
+        console.warn("Permissions API check failed:", e);
+      }
+    }
+
     try {
       if (localStreamRef.current) {
         const currentVideoId = localStreamRef.current.getVideoTracks()[0]?.getSettings().deviceId;
@@ -375,7 +391,9 @@ export default function DebateRoom({ user, profile, roomId }: Props) {
       const errorType = error.name;
       switch (errorType) {
         case 'NotAllowedError':
-          setCameraError(t('app.camera_error_denied'));
+          setCameraError(t('app.camera_error_denied') + " (NotAllowedError)");
+          // On some browsers, this happens if the user dismissed the prompt.
+          // We can't force the prompt, but we can tell them to look for the lock icon.
           break;
         case 'NotFoundError':
         case 'DevicesNotFoundError':
